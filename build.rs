@@ -1,9 +1,10 @@
-use std::env;
-use std::path::PathBuf;
 
-use glob::glob;
-
+#[cfg(feature = "generate")]
 fn main() {
+    use std::env;
+    use std::path::PathBuf;
+    use glob::glob;
+
     let proto_files: Vec<PathBuf> = glob("proto/**/*.proto")
         .unwrap()
         .into_iter()
@@ -21,6 +22,10 @@ fn main() {
         .server_mod_attribute("attrs", "#[cfg(feature = \"server\")]")
         .client_mod_attribute("attrs", "#[cfg(feature = \"client\")]")
         .file_descriptor_set_path(&descriptor_path)
+        .out_dir("src/gen/")
         .compile(&proto_files, &["proto"])
         .unwrap();
 }
+
+#[cfg(not(feature = "generate"))]
+fn main() {}
